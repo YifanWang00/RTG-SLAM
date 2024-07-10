@@ -1073,6 +1073,114 @@ def readOursSceneInfo(
     return scene_info
 
 
+def readWaymoSceneInfo(
+    datapath, eval_, llffhold, frame_start=0, frame_num=100, frame_step=0, isscannetpp=False
+):
+    def load_poses(datapaths, n_img):
+        poses = []
+        for i in range(n_img):
+            pose_file = datapaths[i]
+            pose = np.loadtxt(pose_file)
+            poses.append(pose)
+        return poses
+
+    color_path = "color"
+    depth_path = "depth"
+    pose_path = "pose"
+    if eval_:
+        color_path += "_eval"
+        depth_path += "_eval"
+        pose_path += "_eval"
+
+    color_paths = sorted(
+        glob.glob(f"{datapath}/{color_path}/*.jpg"),
+        key=lambda x: int(os.path.basename(x).split(".")[0]),
+    )
+    depth_paths = sorted(
+        glob.glob(f"{datapath}/{depth_path}/*.png"),
+        key=lambda x: int(os.path.basename(x).split(".")[0]),
+    )
+    n_img = len(color_paths)
+    timestamps = [(i+1) / 30.0 for i in range(n_img)]
+
+    crop_edge = 0
+
+    pose_paths = sorted(
+        glob.glob(f"{datapath}/{pose_path}/*.txt"),
+        key=lambda x: int(os.path.basename(x).split(".")[0]),
+    )
+    
+    poses = load_poses(pose_paths, n_img)
+    if eval_:
+        eval_list = os.path.join(datapath, "eval_list.txt")
+        if os.path.exists(eval_list):
+            eval_list = list(np.loadtxt(eval_list, dtype=np.int32))
+            print("eval_list:", eval_list)
+            color_paths = [
+                color_paths[i] for i in range(len(color_paths)) if i in eval_list
+            ]
+            depth_paths = [
+                depth_paths[i] for i in range(len(depth_paths)) if i in eval_list
+            ]
+            poses = [poses[i] for i in range(len(poses)) if i in eval_list]
+            n_img = len(poses)
+    if eval_:
+        pose_t0_c2w_fake = load_poses(f"{datapath}/pose", 1)[0]
+        pose_t0_w2c = np.linalg.inv(pose_t0_c2w_fake)
+        for i in range(len(poses)):
+            poses[i] = pose_t0_w2c @ poses[i]
+    if frame_num == -1:
+        indicies = list(range(n_img))
+    else:
+        indicies = list(range(frame_num))
+    indicies = [frame_start + i * (frame_step + 1) for i in indicies]
+    indicies = [i for i in indicies if i < n_img]
+
+    if eval_:
+        indicies = list(range(n_img))
+
+    intrinsic = np.loadtxt(os.path.join(datapath, "intrinsic", "intrinsic_depth.txt"))
+
+    cam_infos = readCameras(
+        color_paths,
+        depth_paths,
+        poses,
+        intrinsic,
+        indicies,
+        depth_scale=1000.0,
+        timestamps=timestamps,
+        crop_edge=crop_edge,
+        eval_=eval_,
+    )
+    saveCameraJson(
+        poses,
+        {
+            "h": cam_infos[0].height,
+            "w": cam_infos[0].width,
+            "fx": intrinsic[0, 0],
+            "fy": intrinsic[1, 1],
+        },
+        datapath,
+    )
+
+    train_cam_infos = cam_infos
+    test_cam_infos = []
+
+    nerf_normalization = getNerfppNorm(train_cam_infos)
+    mesh_path = None
+    if isscannetpp:
+        mesh_path = os.path.join(datapath, "mesh_aligned_cull.ply")
+    scene_info = SceneInfo(
+        point_cloud=None,
+        train_cameras=train_cam_infos,
+        test_cameras=test_cam_infos,
+        nerf_normalization=nerf_normalization,
+        ply_path=None,
+        mesh_path=mesh_path,
+    )
+    return scene_info
+
+
 sceneLoadTypeCallbacks = {
     "Colmap": readColmapSceneInfo,
     "Blender": readNerfSyntheticInfo,
@@ -1080,4 +1188,5 @@ sceneLoadTypeCallbacks = {
     "Replica": readReplicaSceneInfo,
     "ours": readOursSceneInfo,
     "Scannetpp": readOursSceneInfo,
+    "Waymo": readWaymoSceneInfo,
 }
