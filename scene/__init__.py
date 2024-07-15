@@ -63,6 +63,16 @@ class Dataset:
                 args.frame_step,
                 isscannetpp=True
             )
+        elif args.type == "Waymo":
+            print("Assuming Waymo dataset!")
+            scene_info = sceneLoadTypeCallbacks["Waymo"](
+                args.source_path,
+                args.eval,
+                args.eval_llff,
+                args.frame_start,
+                args.frame_num,
+                args.frame_step,
+            )
         else:
             print("scene dataset path:", args.source_path)
             assert False, "Could not recognize scene type!"
