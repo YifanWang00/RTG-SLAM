@@ -1,0 +1,13 @@
+parent: "configs/ours_base.yaml"
+save_step: 400
+
+frame_start: 0
+frame_step: 0
+frame_num: -1
+
+# dataset params:
+type: "AVL"
+source_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6"
+save_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6/output"
+
+use_gt_pose: False
