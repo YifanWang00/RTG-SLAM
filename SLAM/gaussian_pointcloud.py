@@ -514,6 +514,7 @@ class GaussianPointCloud(object):
     @property
     def get_radius(self):
         scales = self.get_scaling
+        print("[Gaussian Pointcloud] get_radius - scales: ", scales)
         min_length, _ = torch.min(scales, dim=1)
         radius = (torch.sum(scales, dim=1) - min_length) / 2
         return radius

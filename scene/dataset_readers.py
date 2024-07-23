@@ -909,6 +909,8 @@ def readCameras(
         FovY = focal2fov(fy, height)
         image_name = os.path.basename(color_paths[idx]).split(".")[0]
 
+        print(f"\n[dataset_readers.readCameras] image_depth: \n{image_depth}")
+
         cam_info = CameraInfo(
             uid=idx_,
             R=R,
@@ -1147,7 +1149,7 @@ def readAVLSceneInfo(
         poses,
         intrinsic,
         indicies,
-        depth_scale=1000.0,
+        depth_scale=10.0,
         timestamps=timestamps,
         crop_edge=crop_edge,
         eval_=eval_,

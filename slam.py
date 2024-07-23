@@ -62,6 +62,10 @@ def main():
         print("\n========== curr frame is: %d ==========\n" % frame_id)
         move_to_gpu(curr_frame)
         start_time = time.time()
+
+        # print(f"[slam.py] curr_frame depth: {curr_frame.original_depth}")
+        # print(f"[slam.py] curr_frame image: {curr_frame.original_image}")
+        print(f"[slam.py] curr_frame depth_scale: {curr_frame.depth_scale}")
         # tracker process
         frame_map = gaussian_tracker.map_preprocess(curr_frame, frame_id)
         gaussian_tracker.tracking(curr_frame, frame_map)

@@ -160,10 +160,12 @@ def sample_pixels(
 
     if select_mask is None:
         select_mask = devB(torch.ones([H, W, 1]))
+        print(f"[utils.sample_pixels] select_mask shape: {select_mask.shape}")
     invalid_normal_mask = torch.where(normal_map.sum(dim=-1) == 0)
     select_mask[invalid_normal_mask] = False
     if uniform_sample_num > select_mask.sum():
         uniform_sample_num = select_mask.sum()
+        print(f"[utils.sample_pixels] uniform_sample_num: {uniform_sample_num}")
 
     select_mask = select_mask.flatten()
     vertexs = vertex_map.view(-1, 3)[select_mask]

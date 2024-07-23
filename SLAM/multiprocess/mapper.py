@@ -713,7 +713,8 @@ class Mapping(object):
 
     # Sample some pixels as the init gaussians
     def temp_points_init(self, frame: Camera):
-        # print("===== temp points add =====")
+        print(f"===== temp points add at time {self.time}=====")
+        print("[Mapping.temp_points_init]", f"uniform_sample_num: {self.uniform_sample_num}")
         if self.time == 0:
             depth_range_mask = self.frame_map["depth_map"] > 0
             xyz, normal, color = sample_pixels(
@@ -721,8 +722,16 @@ class Mapping(object):
                 self.frame_map["normal_map_w"],
                 self.frame_map["color_map"],
                 self.uniform_sample_num,
-                depth_range_mask,
+                # depth_range_mask,
             )
+            # print("[Mapping.temp_points_init]", f"temp xyz: {xyz} {xyz.shape}")
+            # print("[Mapping.temp_points_init]", f"temp vertex_map_w: {self.frame_map['vertex_map_w']} {self.frame_map['vertex_map_w'].shape}")
+            # print("[Mapping.temp_points_init]", f"temp normal: {normal} {normal.shape}")
+            # print("[Mapping.temp_points_init]", f"temp normal_map_w: {self.frame_map['normal_map_w']} {self.frame_map['normal_map_w'].shape}")
+            # print("[Mapping.temp_points_init]", f"temp color: {color} {color.shape}")
+            # print("[Mapping.temp_points_init]", f"temp color_map: {self.frame_map['color_map']} {self.frame_map['color_map'].shape}")
+            # print("[Mapping.temp_points_init]", f"temp depth: {self.frame_map['depth_map']} {self.frame_map['depth_map'].shape}")
+            # print("[Mapping.temp_points_init]", f"temp depth_range_mask: {depth_range_mask} {depth_range_mask.shape}")
             self.temp_pointcloud.add_empty_points(xyz, normal, color, self.time)
         else:
             self.get_render_output(frame)

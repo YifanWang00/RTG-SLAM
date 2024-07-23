@@ -6,7 +6,8 @@ frame_step: 0
 frame_num: -1
 
 # dataset params:
-source_path: "./data/Ours/hotel"
-save_path: "output/dataset/Ours/hotel"
+verbose: True
+source_path: "/yifan-vol/rtg-slam/data/Ours/hotel"
+save_path: "/yifan-vol/rtg-slam/output/dataset/Ours/hotel"
 
 use_gt_pose: False

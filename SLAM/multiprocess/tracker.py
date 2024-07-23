@@ -104,15 +104,20 @@ class Tracker(object):
             * 255
             * frame.depth_scale
         ).astype(np.uint16)
+        print(f"[tracker.py] original_depth: {frame.original_depth}")
+        print(f"[tracker.py] depth_map: {depth_map}")
+        print(f"[tracker.py] depth_map_orb: {depth_map_orb}")
         intrinsic = frame.get_intrinsic
         # depth filter
         if self.depth_filter:
             depth_map_filter = bilateralFilter_torch(depth_map, 5, 2, 2)
         else:
             depth_map_filter = depth_map
+        print(f"[tracker.py] depth_filter: {self.depth_filter}")
 
         valid_range_mask = (depth_map_filter > self.min_depth) & (depth_map_filter < self.max_depth)
         depth_map_filter[~valid_range_mask] = 0.0
+        print(f"[tracker.py] depth_map_filter: {depth_map_filter}")
         # update depth map
         frame.original_depth = depth_map_filter.permute(2, 0, 1) / 255.0
         # compute geometry info

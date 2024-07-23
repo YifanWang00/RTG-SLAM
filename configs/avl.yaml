@@ -7,7 +7,10 @@ frame_num: -1
 
 # dataset params:
 type: "AVL"
+verbose: True
 source_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6"
 save_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6/output"
 
 use_gt_pose: False
+
+uniform_sample_num: 200000
