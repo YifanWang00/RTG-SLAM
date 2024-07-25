@@ -112,7 +112,7 @@ def main():
                 save_picture=True,
                 run_pcd=False
             )
-            gaussian_map.save_model(save_data=True)
+            # gaussian_map.save_model(save_data=True)
 
         gaussian_map.time += 1
         move_to_cpu(curr_frame)

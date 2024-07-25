@@ -184,7 +184,7 @@ def eval_picture2(
         os.makedirs(color_save_path, exist_ok=True)
         torchvision.utils.save_image(
             image,
-            os.path.join(color_save_path, f"{frame.uid}.jpg"),
+            os.path.join(color_save_path, f"{frame.uid}.png"),
         )
     
     # check depth map
@@ -211,7 +211,7 @@ def eval_picture2(
         )
         torchvision.utils.save_image(
             colored_depth_render,
-            os.path.join(depth_save_path, f"{frame.uid}.jpg"),
+            os.path.join(depth_save_path, f"{frame.uid}.png"),
         )
     
     normal_loss = torch.tensor(0)

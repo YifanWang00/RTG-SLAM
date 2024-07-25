@@ -1078,17 +1078,33 @@ def readOursSceneInfo(
 def readAVLSceneInfo(
     datapath, eval_, llffhold, frame_start=0, frame_num=100, frame_step=0, isscannetpp=False
 ):
+    from scipy.spatial.transform import Rotation as R
+    # 给定的旋转四元数和位移
+    quaternion = [0.35948656, -0.56951158, 0.60381314, -0.42642194]
+    translation = [-0.06368123, -0.23883959, -0.00641668]
+
+    # 构建旋转矩阵
+    r = R.from_quat(quaternion)
+    rotation_matrix = r.as_matrix()
+
+    # 构建变换矩阵
+    transform_matrix = np.eye(4)
+    transform_matrix[:3, :3] = rotation_matrix
+    transform_matrix[:3, 3] = translation
+    
     def load_poses(datapaths, n_img):
+
         poses = []
         for i in range(n_img):
             pose_file = datapaths[i]
             pose = np.loadtxt(pose_file)
-            poses.append(pose)
+            pose_camera = np.dot(transform_matrix, pose)
+            poses.append(pose_camera)
         return poses
 
-    color_path = "color_640x480"
-    depth_path = "depth/zoedepth"
-    pose_path = "pose"
+    color_path = "color_640x480_cut"
+    depth_path = "depth/zoedepth_cut"
+    pose_path = "pose_cut"
     if eval_:
         color_path += "_eval"
         depth_path += "_eval"
@@ -1097,12 +1113,14 @@ def readAVLSceneInfo(
     color_paths = sorted(
         glob.glob(f"{datapath}/{color_path}/*.png"),
         key=lambda x: int(os.path.basename(x).split(".")[0]),
-    )[500:]
+    )
     depth_paths = sorted(
         glob.glob(f"{datapath}/{depth_path}/*.png"),
         key=lambda x: int(os.path.basename(x).split(".")[0]),
-    )[500:]
-    n_img = len(color_paths) - 11
+    )
+    n_img = len(color_paths)
+    print(f"color_paths: {len(color_paths)}")
+    print(f"depth_paths: {len(depth_paths)}")
     timestamps = [(i+1) / 30.0 for i in range(n_img)]
 
     crop_edge = 0
@@ -1111,6 +1129,7 @@ def readAVLSceneInfo(
         glob.glob(f"{datapath}/{pose_path}/*.txt"),
         key=lambda x: int(os.path.basename(x).split(".")[0]),
     )
+    print(f"pose_paths: {len(pose_paths)}")
     
     poses = load_poses(pose_paths, n_img)
     if eval_:
