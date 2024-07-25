@@ -146,6 +146,92 @@ def eval_picture(
 
     return losses
 
+def eval_picture2(
+    render_output,
+    frame: Camera,
+    save_path,
+    min_depth,
+    max_depth,
+    save_picture
+):
+    move_to_gpu(frame)
+    image, depth, normal, index = (
+        render_output["render"],
+        render_output["depth"],
+        render_output["normal"],
+        render_output["depth_index_map"],
+    )
+    color_hit_weight, depth_hit_weight, T_map = (
+        render_output["color_hit_weight"],
+        render_output["depth_hit_weight"],
+        render_output["T_map"],
+    )
+    # check color map
+    gt_image = frame.original_image
+    image_error = (gt_image - image).abs()
+    # check others
+    psnr_value = psnr(gt_image, image).mean()
+    ssim_value = eval_ssim(image, gt_image).mean()
+    lpips_value = loss_fn_alex(
+        torch.clamp(gt_image.unsqueeze(0), 0.0, 1.0),
+        torch.clamp(image.unsqueeze(0), 0.0, 1.0),
+    ).item()
+
+    color_loss = l1_loss(gt_image, image)
+
+    if save_picture:
+        color_save_path = os.path.join(save_path, "color")
+        os.makedirs(color_save_path, exist_ok=True)
+        torchvision.utils.save_image(
+            image,
+            os.path.join(color_save_path, f"{frame.uid}.jpg"),
+        )
+    
+    # check depth map
+    gt_depth = 255.0 * frame.original_depth
+    valid_range_mask = (gt_depth > min_depth) & (gt_depth < max_depth)
+    gt_depth[~valid_range_mask] = 0
+    
+    depth_error = (gt_depth - depth).abs()
+    invalid_depth_mask = (index == -1) | (gt_depth == 0)
+    depth_error[invalid_depth_mask] = 0
+
+    valid_depth_mask = ~invalid_depth_mask
+    pixel_num = depth.shape[1] * depth.shape[2]
+    valid_pixel_ratio = valid_depth_mask.sum() / pixel_num
+    depth_loss = l1_loss(depth[valid_depth_mask], gt_depth[valid_depth_mask])
+    
+    if save_picture:
+        depth_save_path = os.path.join(save_path, "depth")
+        os.makedirs(depth_save_path, exist_ok=True)
+        min_depth = gt_depth[gt_depth > 0].min()
+        max_depth = gt_depth[gt_depth > 0].max()
+        colored_depth_render = color_value(
+            depth, depth == 0, min_depth, max_depth, cv2.COLORMAP_INFERNO
+        )
+        torchvision.utils.save_image(
+            colored_depth_render,
+            os.path.join(depth_save_path, f"{frame.uid}.jpg"),
+        )
+    
+    normal_loss = torch.tensor(0)
+    # save log
+    log_info = "valid pixel ratio={:.2%}, color loss={:.3f}, depth loss={:.3f}cm, normal loss={:.3f}, psnr={:.3f}".format(
+        valid_pixel_ratio, color_loss, depth_loss * 100, normal_loss, psnr_value
+    )
+    print(log_info)
+    losses = {
+        "valid_pixel_ratio": valid_pixel_ratio.item(),
+        "depth_loss": depth_loss.item(),
+        "normal_loss": normal_loss.item(),
+        "psnr": psnr_value.item(),
+        "ssim": ssim_value.item(),
+        "lpips": lpips_value,
+    }
+    move_to_cpu(frame)
+
+    return losses
+
 def completion_ratio(gt_points, rec_points, dist_th=0.03):
     gen_points_kd_tree = KDTree(rec_points)
     distances, _ = gen_points_kd_tree.query(gt_points)
@@ -241,7 +327,8 @@ def eval_frame(
     with torch.no_grad():
         # save render
         frame_name = "frame_{:04d}".format(mapping.time)
-        render_save_path = os.path.join(dir_name, frame_name)
+        # render_save_path = os.path.join(dir_name, frame_name)
+        render_save_path = dir_name
         losses = {}
         if run_picture:
             os.makedirs(render_save_path, exist_ok=True)
@@ -250,7 +337,7 @@ def eval_frame(
                     cam, mapping.global_params
                 )
 
-            pic_loss = eval_picture(
+            pic_loss = eval_picture2(
                 render_output,
                 cam,
                 render_save_path,

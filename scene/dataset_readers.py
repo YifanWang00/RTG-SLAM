@@ -909,7 +909,7 @@ def readCameras(
         FovY = focal2fov(fy, height)
         image_name = os.path.basename(color_paths[idx]).split(".")[0]
 
-        print(f"\n[dataset_readers.readCameras] image_depth: \n{image_depth}")
+        print(f"\n[dataset_readers.readCameras] max image_depth: {np.max(image_depth)}")
 
         cam_info = CameraInfo(
             uid=idx_,
@@ -1086,8 +1086,8 @@ def readAVLSceneInfo(
             poses.append(pose)
         return poses
 
-    color_path = "color"
-    depth_path = "depth/depth-anything-v2-base"
+    color_path = "color_640x480"
+    depth_path = "depth/zoedepth"
     pose_path = "pose"
     if eval_:
         color_path += "_eval"
@@ -1097,11 +1097,11 @@ def readAVLSceneInfo(
     color_paths = sorted(
         glob.glob(f"{datapath}/{color_path}/*.png"),
         key=lambda x: int(os.path.basename(x).split(".")[0]),
-    )
+    )[500:]
     depth_paths = sorted(
         glob.glob(f"{datapath}/{depth_path}/*.png"),
         key=lambda x: int(os.path.basename(x).split(".")[0]),
-    )
+    )[500:]
     n_img = len(color_paths) - 11
     timestamps = [(i+1) / 30.0 for i in range(n_img)]
 
@@ -1141,7 +1141,7 @@ def readAVLSceneInfo(
     if eval_:
         indicies = list(range(n_img))
 
-    intrinsic = np.loadtxt(os.path.join(datapath, "intrinsic", "intrinsic_depth.txt"))
+    intrinsic = np.loadtxt(os.path.join(datapath, "intrinsic", "intrinsic_depth_640x480.txt"))
 
     cam_infos = readCameras(
         color_paths,
@@ -1149,7 +1149,7 @@ def readAVLSceneInfo(
         poses,
         intrinsic,
         indicies,
-        depth_scale=10.0,
+        depth_scale=1000.0,
         timestamps=timestamps,
         crop_edge=crop_edge,
         eval_=eval_,

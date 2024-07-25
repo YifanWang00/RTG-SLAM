@@ -1,5 +1,5 @@
 parent: "configs/ours_base.yaml"
-save_step: 400
+save_step: 1
 
 frame_start: 0
 frame_step: 0
@@ -9,8 +9,10 @@ frame_num: -1
 type: "AVL"
 verbose: True
 source_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6"
-save_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6/output"
+save_path: "/yifan-vol/rtg-slam/output/avl/04042023/cam6_640x480_video"
 
-use_gt_pose: False
+use_gt_pose: True
 
-uniform_sample_num: 200000
+uniform_sample_num: 100000
+max_depth: 80
+pcd_densify: True
