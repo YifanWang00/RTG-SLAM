@@ -1078,19 +1078,6 @@ def readOursSceneInfo(
 def readAVLSceneInfo(
     datapath, eval_, llffhold, frame_start=0, frame_num=100, frame_step=0, isscannetpp=False
 ):
-    from scipy.spatial.transform import Rotation as R
-    # 给定的旋转四元数和位移
-    quaternion = [0.35948656, -0.56951158, 0.60381314, -0.42642194]
-    translation = [-0.06368123, -0.23883959, -0.00641668]
-
-    # 构建旋转矩阵
-    r = R.from_quat(quaternion)
-    rotation_matrix = r.as_matrix()
-
-    # 构建变换矩阵
-    transform_matrix = np.eye(4)
-    transform_matrix[:3, :3] = rotation_matrix
-    transform_matrix[:3, 3] = translation
     
     def load_poses(datapaths, n_img):
 
@@ -1098,13 +1085,12 @@ def readAVLSceneInfo(
         for i in range(n_img):
             pose_file = datapaths[i]
             pose = np.loadtxt(pose_file)
-            pose_camera = np.dot(transform_matrix, pose)
-            poses.append(pose_camera)
+            poses.append(pose)
         return poses
 
     color_path = "color_640x480_cut"
     depth_path = "depth/zoedepth_cut"
-    pose_path = "pose_cut"
+    pose_path = "cam_pose_cut"
     if eval_:
         color_path += "_eval"
         depth_path += "_eval"
