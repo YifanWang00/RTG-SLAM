@@ -910,6 +910,8 @@ def readCameras(
         image_name = os.path.basename(color_paths[idx]).split(".")[0]
 
         print(f"\n[dataset_readers.readCameras] max image_depth: {np.max(image_depth)}")
+        print(f"[dataset_readers.readCameras] image_depth shape: {image_depth.shape}")
+        print(f"[dataset_readers.readCameras] image_color shape: {image_color.shape}")
 
         cam_info = CameraInfo(
             uid=idx_,
@@ -1088,8 +1090,8 @@ def readAVLSceneInfo(
             poses.append(pose)
         return poses
 
-    color_path = "color_640x480_cut"
-    depth_path = "depth/zoedepth_cut"
+    color_path = "color_640x480_cut_with_sky-road_mask"
+    depth_path = "depth/zoedepth_cut_with_sky-road_mask"
     pose_path = "cam_pose_cut"
     if eval_:
         color_path += "_eval"

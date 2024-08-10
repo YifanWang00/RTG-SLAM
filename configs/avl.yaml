@@ -9,10 +9,13 @@ frame_num: -1
 type: "AVL"
 verbose: True
 source_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6"
-save_path: "/yifan-vol/rtg-slam/output/avl/04042023/cam6_640x480_50k_transposed"
+save_path: "/yifan-vol/rtg-slam/output/avl/04042023/cam6_640x480_20k_sky-road_mask_cnd_no_pose"
 
-use_gt_pose: True
+use_gt_pose: False
+icp_use_model_depth: False
+orb_settings_path: "configs/orb_config/avl.yaml"
+# unstable_time_window: 200
 
-uniform_sample_num: 40000
+uniform_sample_num: 20000
 max_depth: 80
-pcd_densify: True
+# pcd_densify: True
