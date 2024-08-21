@@ -66,6 +66,7 @@ def main():
         # print(f"[slam.py] curr_frame depth: {curr_frame.original_depth}")
         # print(f"[slam.py] curr_frame image: {curr_frame.original_image}")
         # print(f"[slam.py] curr_frame depth_scale: {curr_frame.depth_scale}")
+
         # tracker process
         frame_map = gaussian_tracker.map_preprocess(curr_frame, frame_id)
         gaussian_tracker.tracking(curr_frame, frame_map)
@@ -127,6 +128,9 @@ def main():
     print("[LOG] keyframes: ", gaussian_map.keyframe_ids)
     print("[LOG] mean tracker process time: ", tracker_time_sum / (frame_id + 1))
     print("[LOG] mean mapper process time: ", mapper_time_sum / (frame_id + 1))
+    print("[LOG] total tracker process time: ", tracker_time_sum)
+    print("[LOG] total mapper process time: ", mapper_time_sum)
+    print("[LOG] total process time: ", tracker_time_sum + mapper_time_sum)
     
     new_poses = gaussian_tracker.get_new_poses()
     gaussian_map.update_poses(new_poses)
