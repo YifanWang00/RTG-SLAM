@@ -713,7 +713,7 @@ class Mapping(object):
 
     # Sample some pixels as the init gaussians
     def temp_points_init(self, frame: Camera):
-        print(f"===== temp points add at time {self.time}=====")
+        print(f"[Mapping.temp_points_init] temp points add at time {self.time}")
         print("[Mapping.temp_points_init]", f"uniform_sample_num: {self.uniform_sample_num}")
         if self.time == 0:
             depth_range_mask = self.frame_map["depth_map"] > 0
@@ -732,6 +732,7 @@ class Mapping(object):
             # print("[Mapping.temp_points_init]", f"temp color_map: {self.frame_map['color_map']} {self.frame_map['color_map'].shape}")
             # print("[Mapping.temp_points_init]", f"temp depth: {self.frame_map['depth_map']} {self.frame_map['depth_map'].shape}")
             # print("[Mapping.temp_points_init]", f"temp depth_range_mask: {depth_range_mask} {depth_range_mask.shape}")
+            print(f"[Mapping.temp_points_init] Add empty points at time=0")
             self.temp_pointcloud.add_empty_points(xyz, normal, color, self.time)
         else:
             self.get_render_output(frame)
@@ -748,8 +749,8 @@ class Mapping(object):
             )
             if self.verbose:
                 print(
-                    "transmission empty num = {:d}, sample num = {:d}".format(
-                        transmission_sample_mask.sum(), transmission_sample_num
+                    "transmission empty num = {:d}, sample num = {:d}, transmission_sample_ratio = {:d}".format(
+                        transmission_sample_mask.sum(), transmission_sample_num, transmission_sample_ratio
                     )
                 )
             xyz_trans, normal_trans, color_trans = sample_pixels(
@@ -759,6 +760,7 @@ class Mapping(object):
                 transmission_sample_num,
                 transmission_sample_mask,
             )
+            print(f"[Mapping.temp_points_init] Add empty points by transmission")
             self.temp_pointcloud.add_empty_points(
                 xyz_trans, normal_trans, color_trans, self.time
             )
@@ -775,11 +777,13 @@ class Mapping(object):
                 & (self.frame_map["depth_map"] > 0)
                 & (self.model_map["render_depth_index"] > -1)
             )
+
             color_sample_mask = (
                 (color_error > self.add_color_thres)
                 & (self.frame_map["depth_map"] > 0)
                 & (self.model_map["render_transmission"] < self.add_transmission_thres)
             )
+
             sample_mask = color_sample_mask | depth_sample_mask
             sample_mask = sample_mask & (~transmission_sample_mask)
             sample_num = devI(sample_mask.sum() * self.error_sample_ratio)
@@ -791,6 +795,13 @@ class Mapping(object):
                         sample_num,
                     )
                 )
+                depth_err_rate = depth_sample_mask.sum() / self.get_pixel_num
+                color_err_rate = color_sample_mask.sum() / self.get_pixel_num
+                sample_rate = sample_num / self.get_pixel_num
+                print(f"[Mapping.temp_points_init] depth error rate: {depth_err_rate}")
+                print(f"[Mapping.temp_points_init] depth error rate: {color_err_rate}")
+                print(f"[Mapping.temp_points_init] sample rate: {sample_rate}")
+                
             xyz_error, normal_error, color_error = sample_pixels(
                 self.frame_map["vertex_map_w"],
                 self.frame_map["normal_map_w"],
@@ -798,6 +809,7 @@ class Mapping(object):
                 sample_num,
                 sample_mask,
             )
+            print(f"[Mapping.temp_points_init] Add empty points by error")
             self.temp_pointcloud.add_empty_points(
                 xyz_error, normal_error, color_error, self.time
             )

@@ -319,6 +319,7 @@ class GaussianPointCloud(object):
         normal = normal[valid_normal_mask]
         color = color[valid_normal_mask]
         points_num = xyz.shape[0]
+        print(f"[gaussian_pointcloud.add_empty_points] Adding {points_num} points")
         # compute SH feature
         features = devF(torch.zeros((points_num, 3, (self.max_sh_degree + 1) ** 2)))
         sh_color = RGB2SH(color)
