@@ -1090,9 +1090,9 @@ def readAVLSceneInfo(
             poses.append(pose)
         return poses
 
-    color_path = "resolution_640x480/color_mask_sky-car-human-road-tree_cut"
-    depth_path = "depth/zoedepth/with_mask/sky-car-human-road-tree_cut"
-    pose_path = "cam_pose_cut"
+    color_path = "resolution_640x480/color_mask_sky-car-human-road_cut_2"
+    depth_path = "depth/zoedepth/with_mask/sky-car-human-road_cut_2"
+    pose_path = "cam_pose_cut_2"
     if eval_:
         color_path += "_eval"
         depth_path += "_eval"
