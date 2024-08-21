@@ -749,7 +749,7 @@ class Mapping(object):
             )
             if self.verbose:
                 print(
-                    "transmission empty num = {:d}, sample num = {:d}, transmission_sample_ratio = {:d}".format(
+                    "transmission empty num = {:d}, sample num = {:d}, transmission_sample_ratio = {:f}".format(
                         transmission_sample_mask.sum(), transmission_sample_num, transmission_sample_ratio
                     )
                 )
@@ -801,7 +801,7 @@ class Mapping(object):
                 print(f"[Mapping.temp_points_init] depth error rate: {depth_err_rate}")
                 print(f"[Mapping.temp_points_init] depth error rate: {color_err_rate}")
                 print(f"[Mapping.temp_points_init] sample rate: {sample_rate}")
-                
+
             xyz_error, normal_error, color_error = sample_pixels(
                 self.frame_map["vertex_map_w"],
                 self.frame_map["normal_map_w"],
