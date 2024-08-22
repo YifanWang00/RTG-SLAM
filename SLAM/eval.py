@@ -148,6 +148,7 @@ def eval_picture(
 
 def eval_picture2(
     render_output,
+    stable_output,
     frame: Camera,
     save_path,
     min_depth,
@@ -166,6 +167,7 @@ def eval_picture2(
         render_output["depth_hit_weight"],
         render_output["T_map"],
     )
+    stable_img = stable_output["render"]
     # check color map
     gt_image = frame.original_image
     image_error = (gt_image - image).abs()
@@ -185,6 +187,13 @@ def eval_picture2(
         torchvision.utils.save_image(
             image,
             os.path.join(color_save_path, f"{frame.uid}.png"),
+        )
+
+        stable_save_path = os.path.join(save_path, "stable")
+        os.makedirs(stable_save_path, exist_ok=True)
+        torchvision.utils.save_image(
+            stable_img,
+            os.path.join(stable_save_path, f"{frame.uid}.png"),
         )
     
     # check depth map
@@ -336,9 +345,13 @@ def eval_frame(
                 render_output = mapping.renderer.render(
                     cam, mapping.global_params
                 )
+                stable_output = mapping.renderer.render(
+                    cam, mapping.stable_params
+                )
 
             pic_loss = eval_picture2(
                 render_output,
+                stable_output,
                 cam,
                 render_save_path,
                 min_depth,

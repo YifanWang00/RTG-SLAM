@@ -1129,6 +1129,31 @@ class Mapping(object):
         }
         return global_prams
 
+    @property
+    def stable_params(self):
+        stable_params = self.stable_params
+
+        xyz = stable_params["xyz"]
+        opacity = stable_params["opacity"]
+        scales = stable_params["scales"]
+        rotations = torch.cat(stable_params["rotations"]
+        shs = stable_params["shs"]
+        radius = stable_params["radius"]
+        normal = stable_params["normal"]
+        confidence = stable_params["confidence"]
+        
+        stable_prams = {
+            "xyz": xyz,
+            "opacity": opacity,
+            "scales": scales,
+            "rotations": rotations,
+            "shs": shs,
+            "radius": radius,
+            "normal": normal,
+            "confidence": confidence,
+        }
+        return stable_prams
+
 
     @property
     def get_pixel_num(self):
