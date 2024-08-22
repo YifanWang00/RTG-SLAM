@@ -799,7 +799,7 @@ class Mapping(object):
                 color_err_rate = color_sample_mask.sum() / self.get_pixel_num
                 sample_rate = sample_num / self.get_pixel_num
                 print(f"[Mapping.temp_points_init] depth error rate: {depth_err_rate}")
-                print(f"[Mapping.temp_points_init] depth error rate: {color_err_rate}")
+                print(f"[Mapping.temp_points_init] color error rate: {color_err_rate}")
                 print(f"[Mapping.temp_points_init] sample rate: {sample_rate}")
 
             xyz_error, normal_error, color_error = sample_pixels(
@@ -817,6 +817,7 @@ class Mapping(object):
     # Remove temp points that fall within the existing unstable Gaussian.
     def temp_points_filter(self, topk=3):
         if self.get_unstable_num > 0:
+            print(f"[Mapping.temp_points_filter] unstable_num: {self.get_unstable_num}, unstable ratio: {self.get_unstable_num / self.get_total_num}")
             temp_xyz = self.temp_pointcloud.get_xyz
             if self.verbose:
                 print("init {} temp points".format(self.temp_pointcloud.get_points_num))
@@ -850,6 +851,7 @@ class Mapping(object):
     def temp_points_attach(self, frame: Camera, unstable_opacity_low=0.1):
         if self.get_stable_num == 0:
             return
+        print(f"[Mapping.temp_points_attach] stable_num: {self.get_stable_num}, stable ratio: {self.get_stable_num / self.get_total_num}")
         # project unstable gaussians and compute uv
         unstable_xyz = self.temp_pointcloud.get_xyz
         origin_indices = torch.arange(unstable_xyz.shape[0]).cuda().long()
@@ -902,10 +904,11 @@ class Mapping(object):
 
     # Initialize temp points as unstable gaussian.
     def temp_to_optimize(self):
-        self.temp_pointcloud.update_geometry(
-            self.global_params["xyz"],
-            self.global_params["radius"],
-        )
+        if self.temp_pointcloud.get_points_num != 0:
+            self.temp_pointcloud.update_geometry(
+                self.global_params["xyz"],
+                self.global_params["radius"],
+            )
         if self.verbose:
             print("===== points add =====")
             print(
