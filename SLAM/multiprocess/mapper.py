@@ -1033,6 +1033,7 @@ class Mapping(object):
             self.stable_pointcloud.get_confidence if have_stable else torch.empty(0)
         )
         stable_params = {
+            "have_stable": have_stable,
             "xyz": devF(xyz),
             "opacity": devF(opacity),
             "scales": devF(scales),
@@ -1056,6 +1057,7 @@ class Mapping(object):
         normal = self.pointcloud.get_normal if have_unstable else torch.empty(0)
         confidence = self.pointcloud.get_confidence if have_unstable else torch.empty(0)
         unstable_params = {
+            "have_unstable": have_unstable,
             "xyz": devF(xyz),
             "opacity": devF(opacity),
             "scales": devF(scales),
@@ -1129,30 +1131,30 @@ class Mapping(object):
         }
         return global_prams
 
-    @property
-    def stable_params(self):
-        stable_params = self.stable_params
+    # @property
+    # def stable_params(self):
+    #     stable_params = self.stable_params
 
-        xyz = stable_params["xyz"]
-        opacity = stable_params["opacity"]
-        scales = stable_params["scales"]
-        rotations = torch.cat(stable_params["rotations"]
-        shs = stable_params["shs"]
-        radius = stable_params["radius"]
-        normal = stable_params["normal"]
-        confidence = stable_params["confidence"]
-        
-        stable_prams = {
-            "xyz": xyz,
-            "opacity": opacity,
-            "scales": scales,
-            "rotations": rotations,
-            "shs": shs,
-            "radius": radius,
-            "normal": normal,
-            "confidence": confidence,
-        }
-        return stable_prams
+    #     xyz = stable_params["xyz"]
+    #     opacity = stable_params["opacity"]
+    #     scales = stable_params["scales"]
+    #     rotations = stable_params["rotations"]
+    #     shs = stable_params["shs"]
+    #     radius = stable_params["radius"]
+    #     normal = stable_params["normal"]
+    #     confidence = stable_params["confidence"]
+
+    #     stable_prams = {
+    #         "xyz": xyz,
+    #         "opacity": opacity,
+    #         "scales": scales,
+    #         "rotations": rotations,
+    #         "shs": shs,
+    #         "radius": radius,
+    #         "normal": normal,
+    #         "confidence": confidence,
+    #     }
+    #     return stable_prams
 
 
     @property

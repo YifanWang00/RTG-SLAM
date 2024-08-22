@@ -149,6 +149,7 @@ def eval_picture(
 def eval_picture2(
     render_output,
     stable_output,
+    unstable_output,
     frame: Camera,
     save_path,
     min_depth,
@@ -167,7 +168,17 @@ def eval_picture2(
         render_output["depth_hit_weight"],
         render_output["T_map"],
     )
-    stable_img = stable_output["render"]
+
+    stable_img = torch.zeros_like(image)
+    if stable_output:
+        stable_img = stable_output["render"]
+        print(f"[eval.py eval_picture2] Have stable splats img!")
+
+    unstable_img = torch.zeros_like(image)
+    if unstable_output:
+        unstable_img = unstable_output["render"]
+        # print(f"[eval.py eval_picture2] Have unstable splats img!")
+        
     # check color map
     gt_image = frame.original_image
     image_error = (gt_image - image).abs()
@@ -194,6 +205,13 @@ def eval_picture2(
         torchvision.utils.save_image(
             stable_img,
             os.path.join(stable_save_path, f"{frame.uid}.png"),
+        )
+
+        unstable_save_path = os.path.join(save_path, "unstable")
+        os.makedirs(unstable_save_path, exist_ok=True)
+        torchvision.utils.save_image(
+            unstable_img,
+            os.path.join(unstable_save_path, f"{frame.uid}.png"),
         )
     
     # check depth map
@@ -345,13 +363,23 @@ def eval_frame(
                 render_output = mapping.renderer.render(
                     cam, mapping.global_params
                 )
-                stable_output = mapping.renderer.render(
-                    cam, mapping.stable_params
-                )
+
+                stable_output = None
+                if mapping.stable_params["have_stable"]:
+                    stable_output = mapping.renderer.render(
+                        cam, mapping.stable_params
+                    )
+                
+                unstable_output = None
+                if mapping.unstable_params["have_unstable"]:
+                    unstable_output = mapping.renderer.render(
+                        cam, mapping.unstable_params
+                    )
 
             pic_loss = eval_picture2(
                 render_output,
                 stable_output,
+                unstable_output,
                 cam,
                 render_save_path,
                 min_depth,
