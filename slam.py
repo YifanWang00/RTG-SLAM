@@ -20,6 +20,8 @@ from SLAM.eval import eval_frame
 from utils.general_utils import safe_state
 from utils.monitor import Recorder
 
+import matplotlib.pyplot as plt
+
 torch.set_printoptions(4, sci_mode=False)
 
 
@@ -53,11 +55,26 @@ def main():
     tracker_time_sum = 0
     mapper_time_sum = 0
 
+    poses_gt = []
+    Rs = []
+    Ts = []
+    view_mat = []
+    proj_mat = []
+
     # start SLAM
     for frame_id, frame_info in enumerate(dataset.scene_info.train_cameras):
         curr_frame = loadCam(
             dataset_params, frame_id, frame_info, dataset_params.resolution_scales[0]
         )
+
+        poses_gt.append(curr_frame.pose_gt)
+        Rs.append(curr_frame.R)
+        Ts.append(curr_frame.T)
+        view_mat.append(curr_frame.world_view_transform)
+        proj_mat.append(curr_frame.full_proj_transform)
+
+        if frame_id > 150:
+            break
 
         print("\n========== curr frame is: %d ==========\n" % frame_id)
         move_to_gpu(curr_frame)
@@ -156,6 +173,26 @@ def main():
         o3d.io.write_point_cloud(
             os.path.join(args.save_path, "save_model", "pcd_densify.ply"), densify_pcd
         )
+    
+    # # Plotting the trajectories after fixing the velodyne_to_camera6 transformation
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+
+    # ax.plot(Ts[:, 0], Ts[:, 1], Ts[:, 2], label='T', color='r')
+    # # ax.plot(map_to_camera_positions_fixed3[:, 0], map_to_camera_positions_fixed3[:, 1], map_to_camera_positions_fixed3[:, 2], label='w2c', color='b')
+    # # ax.plot(map_to_baselink_positions_fixed[:, 0], map_to_baselink_positions_fixed[:, 1], map_to_baselink_positions_fixed[:, 2], label='Baselink Trajectory', color='g')
+
+    # ax.set_xlabel('X')
+    # ax.set_ylabel('Y')
+    # ax.set_zlabel('Z')
+    # ax.set_title('[FIXED] cam6,LiDAR,car Trajectories in the Map Frame')
+    # ax.legend()
+
+    # plt.show()
+    # plt.savefig('./transformations.png')
+    print(Ts[0:5])
+    print(poses_gt[0:5])
+    print(view_mat[0:5])
 
 
 if __name__ == "__main__":
