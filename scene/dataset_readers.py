@@ -876,17 +876,17 @@ def readCameras(
         poses[idx] = c2w
         # get the world-to-camera transform and set R, T
         w2c = np.linalg.inv(c2w)
-        rotation_mat = np.array([
-            [0, -1, 0],
-            [1, 0, 0],
-            [0, 0, 1]
-        ])
-        R = np.transpose(
-            w2c[:3, :3] @ rotation_mat
-        )  # R is stored transposed due to 'glm' in CUDA code
+        # rotation_mat = np.array([
+        #     [0, -1, 0],
+        #     [1, 0, 0],
+        #     [0, 0, 1]
+        # ])
         # R = np.transpose(
-        #     w2c[:3, :3]
+        #     w2c[:3, :3] @ rotation_mat
         # )  # R is stored transposed due to 'glm' in CUDA code
+        R = np.transpose(
+            w2c[:3, :3]
+        )  # R is stored transposed due to 'glm' in CUDA code
         T = w2c[:3, 3]
 
         image_color = Image.open(color_paths[idx])
@@ -1098,11 +1098,11 @@ def readAVLSceneInfo(
             poses.append(pose)
         return poses
 
-    # color_path = "resolution_640x480/color_mask_sky-car-human-road_cut"
-    color_path = "resolution_640x480/color_cut"
-    # depth_path = "depth/zoedepth/with_mask/sky-car-human-road_cut"
-    depth_path = "depth/zoedepth/zoedepth_cut_640x480"
-    pose_path = "cam_pose_cut"
+    # color_path = "resolution_640x480/color_cut"
+    # depth_path = "depth/zoedepth/zoedepth_cut_640x480"
+    color_path = "resolution_640x480/color_mask_sky-car-human-road_cut"
+    depth_path = "depth/zoedepth/with_mask/sky-car-human-road_cut"
+    pose_path = "w2c_cut"
     if eval_:
         color_path += "_eval"
         depth_path += "_eval"
