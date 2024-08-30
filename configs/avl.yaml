@@ -9,15 +9,62 @@ frame_num: -1
 type: "AVL"
 verbose: True
 source_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6"
-save_path: "/yifan-vol/rtg-slam/output/avl/04042023/gt_pose/cam6_640x480_20k_sky-car-human-road_cut_2/trans_thes_1"
+save_path: "/yifan-vol/rtg-slam/output/avl/04042023/stable_thres_100/cam6_640x480_20k_sky-car-human-road"
 
+# gaussian params
+active_sh_degree: 3
+max_sh_degree: 3
+xyz_factor: [1, 1, 0.1] # z should be smallest
+init_opacity: 0.99
+scale_factor: 1.0
+max_radius: 0.05
+min_radius: 0.001
+
+# map preprocess
+min_depth: 0.3
+max_depth: 256
+invalid_confidence_thresh: 0.1  #! Is not really in use
+
+# map params
+uniform_sample_num: 20000
+KNN_num: 20
+KNN_threshold: -1
+memory_length: 3
+global_keyframe_num: 3
+
+add_transmission_thres: 0.5
+transmission_sample_ratio: 1.0
+error_sample_ratio: 0.05
+add_depth_thres: 0.1
+add_color_thres: 0.1
+add_normal_thres: 1000
+
+# state manage
+stable_confidence_thres: 100   #! Should tune, org: 250
+unstable_time_window: 400
+keyframe_trans_thes: 1
+keyframe_theta_thes: 30
+
+# render params
+renderer_opaque_threshold: 0.6
+renderer_normal_threshold: 60
+renderer_depth_threshold: 1.0
+color_sigma: 3.0
+render_mode: "ours" # "torch", "ours"
+depth_mode: "normal" # 'alpha', "opaque", "normal"
+global_opt_top_ratio: 0.4
+
+# optimize params
+gaussian_update_iter: 50
+gaussian_update_frame: 8
+final_global_iter: 10
+
+# track params [Deactivate tracking]
 use_gt_pose: True
 use_orb_backend: False
 icp_use_model_depth: False # if False, use dataset depth frame to frame
 orb_settings_path: "configs/orb_config/avl.yaml"
-# unstable_time_window: 200
 
-uniform_sample_num: 20000
-max_depth: 80
-keyframe_trans_thes: 1
-# pcd_densify: True
+# evaluate
+renderer_opaque_threshold_eval: 0.5
+pcd_densify: False

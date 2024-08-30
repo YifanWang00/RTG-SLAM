@@ -55,28 +55,18 @@ def main():
     tracker_time_sum = 0
     mapper_time_sum = 0
 
-    poses_gt = []
-    Rs = []
-    Ts = []
-    view_mat = []
-    proj_mat = []
-
     # start SLAM
     for frame_id, frame_info in enumerate(dataset.scene_info.train_cameras):
         curr_frame = loadCam(
             dataset_params, frame_id, frame_info, dataset_params.resolution_scales[0]
         )
 
-        # if frame_id > 150:
-        #     break
+        if frame_id > 150:
+            break
 
         print("\n========== curr frame is: %d ==========\n" % frame_id)
         move_to_gpu(curr_frame)
         start_time = time.time()
-
-        # print(f"[slam.py] curr_frame depth: {curr_frame.original_depth}")
-        # print(f"[slam.py] curr_frame image: {curr_frame.original_image}")
-        # print(f"[slam.py] curr_frame depth_scale: {curr_frame.depth_scale}")
 
         # tracker process
         frame_map = gaussian_tracker.map_preprocess(curr_frame, frame_id)
