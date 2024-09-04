@@ -61,7 +61,7 @@ def main():
             dataset_params, frame_id, frame_info, dataset_params.resolution_scales[0]
         )
 
-        if frame_id > 150:
+        if frame_id > 300:
             break
 
         print("\n========== curr frame is: %d ==========\n" % frame_id)
