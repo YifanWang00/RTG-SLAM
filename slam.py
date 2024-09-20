@@ -20,7 +20,7 @@ from SLAM.eval import eval_frame
 from utils.general_utils import safe_state
 from utils.monitor import Recorder
 
-import matplotlib.pyplot as plt
+import shutil
 
 torch.set_printoptions(4, sci_mode=False)
 
@@ -57,12 +57,12 @@ def main():
 
     # start SLAM
     for frame_id, frame_info in enumerate(dataset.scene_info.train_cameras):
+        if frame_id < 710:
+            continue
+
         curr_frame = loadCam(
             dataset_params, frame_id, frame_info, dataset_params.resolution_scales[0]
         )
-
-        if frame_id > 300:
-            break
 
         print("\n========== curr frame is: %d ==========\n" % frame_id)
         move_to_gpu(curr_frame)
@@ -161,3 +161,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    shutil.copyfile(config_path, os.path.join(args.save_path, "config.yaml"))

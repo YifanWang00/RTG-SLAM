@@ -8,8 +8,8 @@ frame_num: -1
 # dataset params:
 type: "AVL"
 verbose: True
-source_path: "/yifan-vol/rtg-slam/data/avl/04042023/cam6"
-save_path: "/yifan-vol/rtg-slam/output/avl/04042023/normalized_depth/max_depth_120/cam6_640x480_20k_sky-car-human-road"
+source_path: "/mnt/data"
+save_path: "/mnt/output/cars/640x480"
 
 # gaussian params
 active_sh_degree: 3

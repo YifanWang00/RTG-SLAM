@@ -876,14 +876,6 @@ def readCameras(
         poses[idx] = c2w
         # get the world-to-camera transform and set R, T
         w2c = np.linalg.inv(c2w)
-        # rotation_mat = np.array([
-        #     [0, -1, 0],
-        #     [1, 0, 0],
-        #     [0, 0, 1]
-        # ])
-        # R = np.transpose(
-        #     w2c[:3, :3] @ rotation_mat
-        # )  # R is stored transposed due to 'glm' in CUDA code
         R = np.transpose(
             w2c[:3, :3]
         )  # R is stored transposed due to 'glm' in CUDA code
@@ -1101,9 +1093,9 @@ def readAVLSceneInfo(
 
     # color_path = "resolution_640x480/color_cut"
     # depth_path = "depth/zoedepth/normalized/640x480"
-    color_path = "resolution_640x480/color_mask_sky-car-human-road_cut"
-    depth_path = "depth/zoedepth/normalized/640x480_sky-car-human-road"
-    pose_path = "w2c_cut"
+    color_path = "color/cars"
+    depth_path = "depth/cars"
+    pose_path = "pose_w2c"
     if eval_:
         color_path += "_eval"
         depth_path += "_eval"
