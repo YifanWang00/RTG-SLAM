@@ -1093,9 +1093,9 @@ def readAVLSceneInfo(
 
     # color_path = "resolution_640x480/color_cut"
     # depth_path = "depth/zoedepth/normalized/640x480"
-    color_path = "color/cars"
-    depth_path = "depth/cars"
-    pose_path = "pose_w2c"
+    color_path = "resolution_640x480/color_mask_sky-car-human-road_cut"
+    depth_path = "depth/zoedepth/normalized/640x480_sky-car-human-road"
+    pose_path = "w2c_cut"
     if eval_:
         color_path += "_eval"
         depth_path += "_eval"

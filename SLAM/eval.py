@@ -15,6 +15,7 @@ import trimesh
 from pytorch_msssim import ms_ssim
 from scipy.spatial import cKDTree as KDTree
 from tqdm import tqdm
+import json
 
 def eval_ssim(image_es, image_gt):
     return ms_ssim(
@@ -154,7 +155,8 @@ def eval_picture2(
     save_path,
     min_depth,
     max_depth,
-    save_picture
+    save_picture,
+    save_log
 ):
     move_to_gpu(frame)
     image, depth, normal, index = (
@@ -216,10 +218,20 @@ def eval_picture2(
     
     # check depth map
     gt_depth = 255.0 * frame.original_depth
+    print(f"\n[eval.eval_picture2] max gt_depth: {torch.max(gt_depth)}")
+    print(f"[eval.eval_picture2] min gt_depth: {torch.min(gt_depth)}")
+    print(f"\n[eval.eval_picture2] max original_depth_type: {torch.max(frame.original_depth)}")
+    print(f"[eval.eval_picture2] min original_depth_type: {torch.min(frame.original_depth)}")
     valid_range_mask = (gt_depth > min_depth) & (gt_depth < max_depth)
+    print(f"[eval.eval_picture2] valid_range_mask: {valid_range_mask.shape}")
+    print(f"\n[eval.eval_picture2] valid_range_mask: {valid_range_mask}")
+    print(f"\n[eval.eval_picture2] min_depth: {min_depth}")
+    print(f"[eval.eval_picture2] max_depth: {max_depth}")
     gt_depth[~valid_range_mask] = 0
     
     depth_error = (gt_depth - depth).abs()
+    print(f"\n[eval.eval_picture2] max rendered_depth: {torch.max(depth)}")
+    print(f"[eval.eval_picture2] min rendered_depth: {torch.min(depth)}")
     invalid_depth_mask = (index == -1) | (gt_depth == 0)
     depth_error[invalid_depth_mask] = 0
 
@@ -243,10 +255,13 @@ def eval_picture2(
     
     normal_loss = torch.tensor(0)
     # save log
-    log_info = "valid pixel ratio={:.2%}, color loss={:.3f}, depth loss={:.3f}cm, normal loss={:.3f}, psnr={:.3f}".format(
-        valid_pixel_ratio, color_loss, depth_loss * 100, normal_loss, psnr_value
+    log_info = "valid pixel ratio={:.2%}, color loss={:.3f}, depth loss={:.3f}cm, normal loss={:.3f}, psnr={:.3f}, ssim={:.3f}".format(
+        valid_pixel_ratio, color_loss, depth_loss * 100, normal_loss, psnr_value, ssim_value
     )
     print(log_info)
+    if save_log:
+        with open(os.path.join(save_path, "log.txt"), "a") as f:
+            f.write(log_info)
     losses = {
         "valid_pixel_ratio": valid_pixel_ratio.item(),
         "depth_loss": depth_loss.item(),
@@ -350,6 +365,7 @@ def eval_frame(
     sample_nums=1000000,
     pcd_transform=np.eye(4),
     save_picture=False,
+    save_log=False
 ):
     with torch.no_grad():
         # save render
@@ -385,6 +401,7 @@ def eval_frame(
                 min_depth,
                 max_depth,
                 save_picture,
+                save_log
             )
             losses.update(pic_loss)
 

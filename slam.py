@@ -57,8 +57,8 @@ def main():
 
     # start SLAM
     for frame_id, frame_info in enumerate(dataset.scene_info.train_cameras):
-        if frame_id < 710:
-            continue
+        if frame_id > 2:
+            break
 
         curr_frame = loadCam(
             dataset_params, frame_id, frame_info, dataset_params.resolution_scales[0]
@@ -143,7 +143,8 @@ def main():
         min_depth=gaussian_map.min_depth,
         max_depth=gaussian_map.max_depth,
         save_picture=True,
-        run_pcd=False
+        run_pcd=False,
+        save_log=True
     )
     
     gaussian_map.save_model(save_data=True)
