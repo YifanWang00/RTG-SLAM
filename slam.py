@@ -57,8 +57,6 @@ def main():
 
     # start SLAM
     for frame_id, frame_info in enumerate(dataset.scene_info.train_cameras):
-        if frame_id > 2:
-            break
 
         curr_frame = loadCam(
             dataset_params, frame_id, frame_info, dataset_params.resolution_scales[0]

@@ -224,7 +224,16 @@ def eval_picture2(
     print(f"[eval.eval_picture2] min original_depth_type: {torch.min(frame.original_depth)}")
     valid_range_mask = (gt_depth > min_depth) & (gt_depth < max_depth)
     print(f"[eval.eval_picture2] valid_range_mask: {valid_range_mask.shape}")
-    print(f"\n[eval.eval_picture2] valid_range_mask: {valid_range_mask}")
+    print(f"[eval.eval_picture2] valid_range_mask: {valid_range_mask}")
+    # 计算 True 的数量
+    true_count = valid_range_mask.sum().item()
+    # 计算总数量
+    total_count = valid_range_mask.numel()
+    # 计算比例
+    true_ratio = true_count / total_count
+    false_ratio = 1 - true_ratio
+    print(f"[eval.eval_picture2] valid_range_mask True 的比例: {true_ratio:.2%}")
+    print(f"[eval.eval_picture2] valid_range_mask False 的比例: {false_ratio:.2%}")
     print(f"\n[eval.eval_picture2] min_depth: {min_depth}")
     print(f"[eval.eval_picture2] max_depth: {max_depth}")
     gt_depth[~valid_range_mask] = 0
@@ -232,10 +241,24 @@ def eval_picture2(
     depth_error = (gt_depth - depth).abs()
     print(f"\n[eval.eval_picture2] max rendered_depth: {torch.max(depth)}")
     print(f"[eval.eval_picture2] min rendered_depth: {torch.min(depth)}")
-    invalid_depth_mask = (index == -1) | (gt_depth == 0)
+    # invalid_depth_mask = (index == -1) | (gt_depth == 0)
+    invalid_depth_mask = (gt_depth == 0)
     depth_error[invalid_depth_mask] = 0
 
     valid_depth_mask = ~invalid_depth_mask
+    print(f"[eval.eval_picture2] valid_depth_mask: {valid_depth_mask.shape}")
+    print(f"[eval.eval_picture2] valid_depth_mask: {valid_depth_mask}")
+    print(f"[eval.eval_picture2] depth_map_index: {index.shape}")
+    print(f"[eval.eval_picture2] depth_map_index: {index}")
+    # 计算 True 的数量
+    true_count = valid_depth_mask.sum().item()
+    # 计算总数量
+    total_count = valid_depth_mask.numel()
+    # 计算比例
+    true_ratio = true_count / total_count
+    false_ratio = 1 - true_ratio
+    print(f"[eval.eval_picture2] valid_depth_mask True 的比例: {true_ratio:.2%}")
+    print(f"[eval.eval_picture2] valid_depth_mask False 的比例: {false_ratio:.2%}")
     pixel_num = depth.shape[1] * depth.shape[2]
     valid_pixel_ratio = valid_depth_mask.sum() / pixel_num
     depth_loss = l1_loss(depth[valid_depth_mask], gt_depth[valid_depth_mask])
